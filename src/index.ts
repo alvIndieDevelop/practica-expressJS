@@ -1,13 +1,14 @@
 import express, { Application } from "express";
 import { createServer } from "http";
+import "dotenv/config";
 
 // middlewares
 import cors from "cors";
 import morgan from "morgan";
-import "dotenv/config";
 
 // routers
 import Routers from "./router";
+import { connectToDB } from "./config/mongodb";
 
 const PORT = process.env.PORT || 5000;
 
@@ -24,6 +25,14 @@ app.use(express.static("public"));
 // routers
 app.use(Routers);
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+connectToDB()
+  .then(() => {
+    console.log("Database connected");
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.log(err);
+    process.exit(1);
+  });
 
 export default app;

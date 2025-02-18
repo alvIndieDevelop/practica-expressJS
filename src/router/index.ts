@@ -1,6 +1,7 @@
 import express, { Router, Response, Request } from "express";
 
 import api from "./api";
+import user from "./user";
 
 const router = Router();
 
@@ -11,5 +12,6 @@ router.get("/", (_req: Request, res: Response) => {
 });
 
 router.use("/api", api);
+router.use("/api/user", user);
 
 export default router;
