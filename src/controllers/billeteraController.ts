@@ -1,5 +1,14 @@
 import { BilleteraModel } from "../models/billeteraSchema";
 import { IUser, UserModel } from "../models/userSchema";
+import { PaymentModel } from "../models/paymentsSchema";
+import crypto from "crypto";
+
+type T_confirmPaymentPayload = {
+  sessionId: string;
+  token: string;
+  userId: string;
+  amount: number;
+};
 
 export class BilleteraController {
   // asign the wallet to a user
@@ -13,6 +22,20 @@ export class BilleteraController {
     // create the wallet
     const wallet = new BilleteraModel({ userId: userId, amount: 0 });
     await wallet.save();
+    return wallet;
+  }
+
+  async findWalletByUserId(userId: string) {
+    const wallet = await BilleteraModel.findOne({ userId: userId }).populate(
+      "userId",
+      {
+        password: 0,
+        createdAt: 0,
+        updatedAt: 0,
+        walletId: 0,
+      }
+    );
+    if (!wallet) throw new Error("wallet not found");
     return wallet;
   }
 
@@ -34,11 +57,57 @@ export class BilleteraController {
   }
 
   // pay
-  async payProduct() {}
+  async payProduct(userId: string, amount: number) {
+    // find user first
+    const wallet = await this.findWalletByUserId(userId);
+    if (!wallet) throw new Error("wallet not found");
+
+    if ((wallet.amount as number) < amount)
+      throw new Error("not enough balance in wallet");
+
+    // create or simulate a sessionID
+    const sessionId = crypto.randomBytes(16).toString("hex");
+    // get a random number of 6 digits
+    const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // create payment
+    await PaymentModel.create({
+      userId: userId,
+      sessionId: sessionId,
+      token: token,
+      amount: amount,
+    });
+
+    // simulate send to email.
+    return { sessionId, token };
+  }
 
   // confirm payment
-  async confirmPayment() {}
+  async confirmPayment(payload: T_confirmPaymentPayload) {
+    const { sessionId, token, userId, amount } = payload;
 
-  // Check Wallet amount
-  async checkWalletAmount() {}
+    // here we need to check the sessionID and the token to validated.
+    const payment = await PaymentModel.findOne({ sessionId });
+    if (!payment) throw new Error("payment not found");
+    if (payment.token !== token) throw new Error("invalid token");
+
+    // find the wallet.
+    const wallet = await this.findWalletByUserId(userId);
+    if (!wallet) throw new Error("wallet not found");
+    if ((wallet.amount as number) < amount)
+      throw new Error("not enough balance");
+
+    // update the wallet
+    (wallet.amount as number) -= amount;
+    await wallet.save();
+
+    // update the payment
+    payment.status = "success";
+    await payment.save();
+
+    return {
+      message: "payment confirmed.",
+      payment: payment,
+    };
+  }
 }

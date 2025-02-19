@@ -1,0 +1,44 @@
+
+### add to wallet
+POST http://localhost:5000/api/wallet/addToWallet
+Content-Type: application/json
+
+{
+    "name": "Alvaro Martin",
+    "email": "alvind2sieaa@gmail.com",
+    "document": "PE-13-2aa17666",
+    "phone": "+50768249353866",
+    "amount": 30
+}
+
+### find wallet by user id
+GET http://localhost:5000/api/wallet/findWalletByUserId?userId=67b57e886eddf3ae5268bbb4
+Content-Type: application/json
+
+### pay amount
+POST http://localhost:5000/api/wallet/pay
+Content-Type: application/json
+
+{
+    "userId": "67b57e886eddf3ae5268bbb4",
+    "amount": 30
+}
+
+### confirm payment
+POST http://localhost:5000/api/wallet/confirmPayment
+Content-Type: application/json
+
+{
+    "sessionId": "77cb710276fde66d5df85bcc6ed678cd",
+    "userId": "67b57e886eddf3ae5268bbb4",
+    "token": "838213",
+    "amount": 30
+}
+
+
+
+####
+{
+  "sessionId": "77cb710276fde66d5df85bcc6ed678cd",
+  "token": "838213"
+}

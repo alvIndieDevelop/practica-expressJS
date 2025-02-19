@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { UserModel } from "./userSchema";
 
 export interface IBilletera extends Document {
   userId: string | Schema.Types.ObjectId;
