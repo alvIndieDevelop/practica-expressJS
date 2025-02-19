@@ -6,13 +6,11 @@ export interface IBilletera extends Document {
   amount: number;
 }
 
-const billeteraSchema = new Schema<IBilletera>(
+const billeteraSchema: Schema = new Schema<IBilletera>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: UserModel,
-      required: true,
-      unique: true,
+      ref: "User",
     },
     amount: {
       type: Number,

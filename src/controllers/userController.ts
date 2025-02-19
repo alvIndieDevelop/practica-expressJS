@@ -13,9 +13,32 @@ export class UserController {
     const userToFind = await UserModel.findOne({ email: data.email });
 
     if (!userToFind) {
-      const user = new UserModel(data);
-      await user.save();
+      const billeteraController = new BilleteraController();
+      const user = await UserModel.create(data);
       // when user is created, create the wallet and asigned
+      const newWallet = await billeteraController.asignWallet(
+        user._id as string
+      );
+
+      // asign new wallet to the user.
+      user.walletId = newWallet._id as string;
+      await user.save();
+
+      const newUser = await UserModel.findById(user._id, {
+        password: 0,
+      }).populate("walletId", {
+        _id: 0,
+        userId: 0,
+        createdAt: 0,
+        updatedAt: 0,
+      });
+
+      return {
+        message: "user created",
+        data: {
+          user: newUser,
+        },
+      };
     } else {
       throw new Error("User already exist");
     }

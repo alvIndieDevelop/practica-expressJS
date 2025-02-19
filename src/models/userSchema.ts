@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
+import { BilleteraModel } from "./billeteraSchema";
 
 export interface IUser extends Document {
   name: string;
@@ -7,22 +8,27 @@ export interface IUser extends Document {
   password: string;
   document: string;
   phone: string;
+  walletId: string | Schema.Types.ObjectId;
   comparePassword(comparedPassword: string): Promise<boolean>;
 }
 
-const userSchema = new Schema<IUser>(
+const userSchema: Schema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     document: { type: String, unique: true, required: true },
     phone: { type: String, unique: true, required: true },
+    walletId: {
+      type: Schema.Types.ObjectId,
+      ref: "Billetera",
+    },
   },
   { timestamps: true, versionKey: false }
 );
 
 // events
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (this: IUser, next: any) {
   if (!this.isModified("password")) return next();
 
   try {

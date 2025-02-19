@@ -30,10 +30,7 @@ export class AuthController {
   async register(payload: Partial<IUser>) {
     try {
       const userController = new UserController();
-      await userController.create(payload);
-      return {
-        message: "user created",
-      };
+      return await userController.create(payload);
     } catch (error: any) {
       throw new Error(`Error en register: ${error.message}`);
     }

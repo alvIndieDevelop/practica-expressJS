@@ -26,7 +26,7 @@ export class BilleteraController {
     const findWallet = await BilleteraModel.findOne({ userId: findUser._id });
     if (!findWallet) throw new Error("wallet of user not found");
 
-    findWallet.amount += amount;
+    (findWallet.amount as number) += amount;
     await findWallet.save();
     return {
       message: "amount is added to wallet.",
