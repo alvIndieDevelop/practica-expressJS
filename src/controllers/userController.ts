@@ -1,12 +1,4 @@
-import { UserModel } from "../models/userSchema";
-
-type T_User = {
-  id: String;
-  name: String;
-  email: String;
-  password: String;
-  document: String;
-};
+import { UserModel, IUser } from "../models/userSchema";
 
 export class UserController {
   async find() {
@@ -15,11 +7,20 @@ export class UserController {
   async findOne(id: string) {
     return await UserModel.findById(id).exec();
   }
-  async create(data: T_User) {
-    const user = new UserModel(data);
-    return await user.save();
+  async create(data: Partial<IUser>) {
+    // find user if exit
+    const userToFind = await UserModel.findOne({ email: data.email });
+
+    if (!userToFind) {
+      console.log("A");
+      const user = new UserModel(data);
+      return await user.save();
+    } else {
+      console.log("B");
+      throw new Error("User already exist");
+    }
   }
-  async update(id: string, data: T_User) {
+  async update(id: string, data: Partial<IUser>) {
     const updated = await UserModel.findByIdAndUpdate(id, data, {
       new: true,
     }).exec();
