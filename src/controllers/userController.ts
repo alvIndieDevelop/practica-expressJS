@@ -1,4 +1,5 @@
 import { UserModel, IUser } from "../models/userSchema";
+import { BilleteraController } from "./billeteraController";
 
 export class UserController {
   async find() {
@@ -12,11 +13,10 @@ export class UserController {
     const userToFind = await UserModel.findOne({ email: data.email });
 
     if (!userToFind) {
-      console.log("A");
       const user = new UserModel(data);
-      return await user.save();
+      await user.save();
+      // when user is created, create the wallet and asigned
     } else {
-      console.log("B");
       throw new Error("User already exist");
     }
   }
